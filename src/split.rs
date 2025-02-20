@@ -39,6 +39,19 @@ impl<R, W> Splittable<R, W> {
     }
 }
 
+impl <R, W> Deref for Splittable<R, W> {
+    type Target = R;
+    fn deref(&self) -> &Self::Target {
+        &self.r
+    }
+}
+
+impl <R, W> DerefMut for Splittable<R, W> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.r
+    }
+}
+
 pub struct RHalf<R, W> {
     k: Arc<u8>,
     r: R,
