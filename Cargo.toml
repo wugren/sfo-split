@@ -1,9 +1,13 @@
 [package]
 name = "sfo-split"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 license-file = "LICENSE"
 repository = "https://github.com/wugren/sfo-split.git"
 description = "Implement splittable object"
 
 [dependencies]
+tokio = {version = "1", feature = ["io"], optional = true}
+
+[features]
+io = ["tokio"]

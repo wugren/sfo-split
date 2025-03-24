@@ -1,5 +1,8 @@
+use std::io::Error;
 use std::ops::{Deref, DerefMut};
+use std::pin::Pin;
 use std::sync::Arc;
+use std::task::{Context, Poll};
 
 pub struct Splittable<R, W> {
     r: R,
@@ -127,6 +130,28 @@ impl<R, W> Deref for WHalf<R, W> {
     type Target = W;
     fn deref(&self) -> &Self::Target {
         &self.w
+    }
+}
+
+#[cfg(feature = "io")]
+impl<R: tokio::io::AsyncWrite + Unpin, W: tokio::io::AsyncWrite + Unpin> tokio::io::AsyncWrite for Splittable<R, W> {
+    fn poll_write(mut self: Pin<&mut Self>, cx: &mut Context<'_>, buf: &[u8]) -> Poll<Result<usize, Error>> {
+        Pin::new(self.get_w_mut()).poll_write(cx, buf)
+    }
+
+    fn poll_flush(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<(), Error>> {
+        Pin::new(self.get_w_mut()).poll_flush(cx)
+    }
+
+    fn poll_shutdown(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<(), Error>> {
+        Pin::new(self.get_w_mut()).poll_shutdown(cx)
+    }
+}
+
+#[cfg(feature = "io")]
+impl<R, W> tokio::io::AsyncRead for Splittable<R, W> where R: tokio::io::AsyncRead + Unpin, W: tokio::io::AsyncRead + Unpin {
+    fn poll_read(mut self: Pin<&mut Self>, cx: &mut Context<'_>, buf: &mut tokio::io::ReadBuf<'_>) -> Poll<Result<(), Error>> {
+        Pin::new(self.get_r_mut()).poll_read(cx, buf)
     }
 }
 
