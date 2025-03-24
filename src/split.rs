@@ -149,7 +149,7 @@ impl<R: tokio::io::AsyncRead + Unpin, W: tokio::io::AsyncWrite + Unpin> tokio::i
 }
 
 #[cfg(feature = "io")]
-impl<R, W> tokio::io::AsyncRead for Splittable<R, W> where R: tokio::io::AsyncRead + Unpin, W: tokio::io::AsyncRead + Unpin {
+impl<R, W> tokio::io::AsyncRead for Splittable<R, W> where R: tokio::io::AsyncRead + Unpin, W: tokio::io::AsyncWrite + Unpin {
     fn poll_read(mut self: Pin<&mut Self>, cx: &mut Context<'_>, buf: &mut tokio::io::ReadBuf<'_>) -> Poll<Result<(), Error>> {
         Pin::new(self.get_r_mut()).poll_read(cx, buf)
     }
